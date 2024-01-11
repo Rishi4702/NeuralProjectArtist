@@ -1,5 +1,7 @@
-from Src.Dataloader.ArtDataset import *
-dataset = ArtDataset(csv_file='../Dataset/artists.csv',img_dir='../Dataset/resized')
+from Dataloader.ArtDataset import ArtDataset
+import os
+
+dataset = ArtDataset(csv_file='../Dataset/artists.csv', img_dir='../Dataset/resized')
 # Assuming 'dataset' is your ArtDataset instance
 print("Dataset size:", len(dataset))
 
@@ -14,5 +16,5 @@ for i in range(len(dataset)):
     image, artist_data = dataset[i]
     img_file_name = os.listdir(dataset.img_dir)[i]
     artist_name = artist_data['name']
-
-    print(f"Image File: {img_file_name} - Painter: {artist_data}")
+    counter += 1
+    #print(f"Image File: {img_file_name} - Painter: {artist_data}")

@@ -7,12 +7,18 @@ import re
 
 def convert_name(artist_name):
     if artist_name == "Albrecht Dürer":
-        return "Albrecht_DuGòá+¬rer"
+        return "Albrecht_Duâ Ãªrer"
+    if artist_name == "Pierre-Auguste Renoir":
+        return "Pierre-Auguste_Renoir"
+    if artist_name == "Henri de Toulouse-Lautrec":
+        return "Henri_de_Toulouse-Lautrec"
+
     # Convert to ASCII, replace spaces with underscores, and remove special characters
     name = unidecode.unidecode(artist_name)
     name = name.replace(' ', '_')
     name = re.sub(r'\W+', '', name)  # Removes any remaining non-alphanumeric characters
     return name
+
 class ArtDataset(Dataset):
     def __init__(self, csv_file, img_dir, transform=None):
         self.data = pd.read_csv(csv_file)
@@ -28,7 +34,8 @@ class ArtDataset(Dataset):
     def __getitem__(self, idx):
         img_name = os.listdir(self.img_dir)[idx]
         artist_name = os.path.splitext(img_name)[0]
-        artist_name = "_".join(artist_name.split("_")[:-1])  # Remove trailing number and extension
+        artist_name = "_".join(artist_name.split("_")[:-1])
+        # Remove trailing number and extension
 
         image = Image.open(os.path.join(self.img_dir, img_name))
         if self.transform:
