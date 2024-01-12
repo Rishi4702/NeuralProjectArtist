@@ -1,20 +1,22 @@
-from Dataloader.ArtDataset import ArtDataset
-import os
+from torch.utils.data import DataLoader
+from src.Dataloader.ArtDataset import ArtDataset
+from torchvision import transforms
+from torch.utils.data import random_split
 
-dataset = ArtDataset(csv_file='../Dataset/artists.csv', img_dir='../Dataset/resized')
-# Assuming 'dataset' is your ArtDataset instance
-print("Dataset size:", len(dataset))
+def get_data_loaders():
+    transform = transforms.Compose([
+        transforms.Resize(size=[255, 255]),
+        transforms.ToTensor(),
+    ])
 
-# Get the first data sample
-image, artist_data = dataset[0]
+    dataset = ArtDataset(csv_file='../Dataset/artists.csv', img_dir='../Dataset/resized', transform=transform)
 
-# Check image and artist data
-print("Image type:", type(image))
-print("Artist Data:", artist_data)
+    train_size = int(0.8 * len(dataset))
+    test_size = len(dataset) - train_size
 
-for i in range(len(dataset)):
-    image, artist_data = dataset[i]
-    img_file_name = os.listdir(dataset.img_dir)[i]
-    artist_name = artist_data['name']
-    counter += 1
-    #print(f"Image File: {img_file_name} - Painter: {artist_data}")
+    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+
+    train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=4, shuffle=False)
+
+    return train_dataloader, test_dataloader

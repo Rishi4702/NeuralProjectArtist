@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import unidecode
 import re
+import torch
 
 def convert_name(artist_name):
     if artist_name == "Albrecht Dürer":
@@ -38,10 +39,10 @@ class ArtDataset(Dataset):
         # Remove trailing number and extension
 
         image = Image.open(os.path.join(self.img_dir, img_name))
+        artist_data = self.artist_to_data.get(artist_name)
+
         if self.transform:
             image = self.transform(image)
-
-        artist_data = self.artist_to_data.get(artist_name)
 
         if artist_data is None:
             raise ValueError(f"No data found for artist: {artist_name}")
