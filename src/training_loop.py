@@ -26,7 +26,10 @@ def matplotlib_imshow(img, one_channel=False):
     else:
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
+
 training_loader, test_loader = get_data_loaders()
 
 dataiter = iter(training_loader)
 images, labels = next(dataiter)
+
+print(images)

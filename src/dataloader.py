@@ -5,8 +5,8 @@ from torch.utils.data import random_split
 
 def get_data_loaders():
     transform = transforms.Compose([
-        transforms.Resize(size=[255, 255]),
         transforms.ToTensor(),
+        transforms.Resize(size=[255, 255]),
     ])
 
     dataset = ArtDataset(csv_file='../Dataset/artists.csv', img_dir='../Dataset/resized', transform=transform)
