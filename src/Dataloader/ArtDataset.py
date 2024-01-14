@@ -1,13 +1,11 @@
 import os
 import re
-import numpy as np
 
 import pandas as pd
-import torch
 import unidecode
 from PIL import Image
 from torch.utils.data import Dataset
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 
 
 def convert_name(artist_name):
@@ -49,7 +47,6 @@ class ArtDataset(Dataset):
         # Remove trailing number and extension
         image = Image.open(os.path.join(self.img_dir, img_name))
         artist_data = self.artist_to_data.get(artist_name)
-        print(artist_data)
 
         label = artist_data['genre']
         label = self.label_encoder.transform([label])
