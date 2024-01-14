@@ -3,10 +3,12 @@ from src.Dataloader.ArtDataset import ArtDataset
 from torchvision import transforms
 from torch.utils.data import random_split
 
+
 def get_data_loaders():
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize(size=[255, 255]),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     dataset = ArtDataset(csv_file='../Dataset/artists.csv', img_dir='../Dataset/resized', transform=transform)

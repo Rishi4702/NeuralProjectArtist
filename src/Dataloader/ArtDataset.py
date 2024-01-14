@@ -35,9 +35,8 @@ class ArtDataset(Dataset):
         self.encoding_info = {}
         self.label_encoder = LabelEncoder()
 
-        for _, row in self.data.iterrows():
-            processed_name = convert_name(row['name'])
-            self.artist_to_data[processed_name] = row
+        self.convert_names()
+        self.fit_label_encoder()
 
     def __len__(self):
         return len(os.listdir(self.img_dir))
@@ -46,12 +45,14 @@ class ArtDataset(Dataset):
         img_name = os.listdir(self.img_dir)[idx]
         artist_name = os.path.splitext(img_name)[0]
         artist_name = "_".join(artist_name.split("_")[:-1])
-        # Remove trailing number and extension
 
+        # Remove trailing number and extension
         image = Image.open(os.path.join(self.img_dir, img_name))
         artist_data = self.artist_to_data.get(artist_name)
+        print(artist_data)
 
         label = artist_data['genre']
+        label = self.label_encoder.transform([label])
 
         if self.transform:
             image = self.transform(image)
@@ -60,3 +61,17 @@ class ArtDataset(Dataset):
             raise ValueError(f"No data found for artist: {artist_name}")
 
         return image, label
+
+    def fit_label_encoder(self):
+        labels = []
+        for artist_name in self.artist_to_data:
+            genre = self.artist_to_data[artist_name]['genre']
+            labels.append(genre)
+
+        labels = list(set(labels))
+        self.label_encoder.fit(labels)
+
+    def convert_names(self):
+        for _, row in self.data.iterrows():
+            processed_name = convert_name(row['name'])
+            self.artist_to_data[processed_name] = row

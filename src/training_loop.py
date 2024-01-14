@@ -30,6 +30,9 @@ def matplotlib_imshow(img, one_channel=False):
 training_loader, test_loader = get_data_loaders()
 
 dataiter = iter(training_loader)
-images, labels = next(dataiter)
 
-print(images)
+for images, labels in dataiter:
+    print(images.size())
+    print(labels.size())
+    print("---")
+
