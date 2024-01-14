@@ -60,11 +60,12 @@ import numpy as np
 # print(f"t: {t}")
 # print(f"n: {n}")
 # dataSETS and dataloaders
-x = torch.ones(5)  # input tensor
-y = torch.zeros(3)  # expected output
-print(x.shape,x)
-w = torch.randn(5, 3, requires_grad=True)
-b = torch.randn(3, requires_grad=True)
-print(w.shape,w)
-z = torch.matmul(x, w)+b
-loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
+# x = torch.ones(5)  # input tensor
+# y = torch.zeros(3)  # expected output
+# print(x.shape,x)
+# w = torch.randn(5, 3, requires_grad=True)
+# b = torch.randn(3, requires_grad=True)
+# print(w.shape,w)
+# z = torch.matmul(x, w)+b
+# loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
+
