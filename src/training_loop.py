@@ -6,6 +6,7 @@ import torch.optim as optim
 from model import GenreClassifier
 from Dataloader.ArtDataset import ArtDataset
 from torch.utils.data import Subset
+
 # Image datasets and image manipulation
 import torchvision
 import torchvision.transforms as transforms

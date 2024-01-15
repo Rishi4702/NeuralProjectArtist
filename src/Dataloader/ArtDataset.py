@@ -7,6 +7,8 @@ import unidecode
 from PIL import Image
 from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import DataLoader
+import torchvision.transforms as transforms
 
 
 def convert_name(artist_name):
@@ -59,7 +61,13 @@ class ArtDataset(Dataset):
             raise ValueError(f"No data found for artist: {artist_name}")
 
         genres = artist_data["genre"].split(",")
-        genre_encoded = self.genre_label_encoder.transform(genres)
+
+        converted_genres = []
+        for genre in genres:
+            genre = self.convert_genre(genre)
+            converted_genres.append(genre)
+
+        genre_encoded = self.genre_label_encoder.transform(converted_genres)
 
         # Create a binary tensor for genres
         genre_tensor = torch.zeros(len(self.genres_labels), dtype=torch.float32)
@@ -79,7 +87,9 @@ class ArtDataset(Dataset):
 
         for genres in artists_df["genre"]:
             for genre in genres.split(","):
-                unique_genres.add(genre.strip())
+                genre = self.convert_genre(genre)
+                unique_genres.add(genre)
+
         self.genres_labels = sorted(list(unique_genres))
 
     def set_artist_names(self):
@@ -116,6 +126,12 @@ class ArtDataset(Dataset):
                 for label in encoded_label
             ]
 
+    def convert_genre(self, genre):
+        genre = genre.lower()
+        genre = genre.replace(" ", "_")
+
+        return genre
+
 
 class GenreDataset(ArtDataset):
     def __init__(self, csv_file: str, img_dir: str, genre: str, transform=None):
@@ -123,34 +139,59 @@ class GenreDataset(ArtDataset):
 
         self.genre = genre
         self.artists_names = []
+        self.genre_img_path = os.path.join(self.img_dir, "genres", self.genre)
 
         self.set_authors()
-        self.prepare_data_for_single_genre()
+        self.prepare_csv_data_for_single_genre()
 
     def __getitem__(self, idx):
-        pass
+        img_name = os.listdir(self.genre_img_path)[idx]
+        artist_name = os.path.splitext(img_name)[0]
+        artist_name = "_".join(artist_name.split("_")[:-1])
+
+        image = Image.open(os.path.join(self.genre_img_path, img_name))
+        artist_data = self.artist_to_data.get(artist_name)
+
+        if artist_data is None:
+            raise ValueError(f"No data found for artist: {artist_name}")
+
+        genres = artist_data["genre"].split(",")
+
+        converted_genres = []
+        for genre in genres:
+            genre = self.convert_genre(genre)
+            converted_genres.append(genre)
+
+        genre_encoded = self.genre_label_encoder.transform(converted_genres)
+
+        # Create a binary tensor for genres
+        genre_tensor = torch.zeros(len(self.genres_labels), dtype=torch.float32)
+        for encoded_label in genre_encoded:
+            genre_tensor[encoded_label] = 1  # Set the corresponding index to 1
+
+        if self.transform:
+            image = self.transform(image)
+
+        artist_encoded = self.artist_label_encoder.transform([artist_name])[0]
+
+        return image, genre_tensor, artist_encoded
+
+    def __len__(self):
+        return len(os.listdir(self.genre_img_path))
 
     def set_authors(self):
         for index, row in self.data.iterrows():
-            genres = row['genre'].split(',')
+            genres = row["genre"].split(",")
 
             for genre in genres:
                 genre = genre.strip()
 
                 if genre == self.genre:
-                    self.artists_names.append(row['name'])
+                    self.artists_names.append(row["name"])
 
-    def prepare_data_for_single_genre(self):
+    def prepare_csv_data_for_single_genre(self):
         for i, row in enumerate(self.data.iterrows()):
-            name_of_artist = row[1]['name']
+            name_of_artist = row[1]["name"]
 
             if name_of_artist not in self.artists_names:
                 self.data.drop(i, axis=0, inplace=True)
-
-dataset = GenreDataset(
-    csv_file="../../Dataset/artists.csv",
-    img_dir="../../Dataset/resized",
-    genre='Mannerism'
-)
-
-print(dataset.data)

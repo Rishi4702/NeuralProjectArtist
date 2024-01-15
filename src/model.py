@@ -12,7 +12,9 @@ class GenreClassifier(torch.nn.Module):
         # an affine operation: y = Wx + b
         self.fc1 = torch.nn.Linear(16 * 62 * 62, 120)  # 6*6 from image dimension
         self.fc2 = torch.nn.Linear(120, 84)
-        self.fc3 = torch.nn.Linear(84, number_of_classes)  # we need to change it to original
+        self.fc3 = torch.nn.Linear(
+            84, number_of_classes
+        )  # we need to change it to original
 
     def forward(self, x):
         x = x.float()
