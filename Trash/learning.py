@@ -24,12 +24,13 @@ import numpy as np
 # print(f"Ones Tensor: \n {ones_tensor} \n")
 # print(f"Zeros Tensor: \n {zeros_tensor}")
 
-# tensor = torch.rand(9,9)
-# # We move our tensor to the GPU if available
-# if torch.cuda.is_available():
-#   tensor = tensor.to('cuda')
-#   print("hello")
-#
+tensor = torch.rand(9,9)
+# We move our tensor to the GPU if available
+if torch.cuda.is_available():
+  tensor = tensor.to('cuda')
+  print("hello")
+else:
+    print('nope')
 # # tensor = torch.ones(4, 4)
 # # # This computes the matrix multiplication between two tensors. y1, y2, y3 will have the same value
 # # y1 = tensor @ tensor.T

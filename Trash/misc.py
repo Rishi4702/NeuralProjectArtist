@@ -1,9 +1,22 @@
-def matplotlib_imshow(img_batch):
-    # Extract the first image from the batch
-    img = img_batch[0]
-    # If the image has a single channel, squeeze it to 2D
-    if img.ndim == 3 and img.shape[0] == 1:
-        img = img.squeeze(0)
+import pandas as pd
 
-    plt.imshow(img, cmap='gray')
-    plt.show()
+# Load data from the CSV file
+df = pd.read_csv('../src/Dataset/artists.csv')
+
+# Initialize an empty genre-based dictionary
+genre_dict = {}
+
+# Iterate through the DataFrame rows
+for index, row in df.iterrows():
+    # Split the 'genre' column by ',' to get a list of genres
+    genres = row['genre'].split(',')
+
+    # Iterate through the genres and add the 'name' to the corresponding genre's list
+    for genre in genres:
+        genre = genre.strip()  # Remove leading/trailing spaces
+        if genre not in genre_dict:
+            genre_dict[genre] = []
+        genre_dict[genre].append(row['name'])
+
+# Print the genre-based dictionary
+print(genre_dict)
