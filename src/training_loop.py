@@ -16,6 +16,7 @@ import numpy as np
 
 from torch.utils.tensorboard import SummaryWriter
 from dataloader import get_data_loaders
+from model import GenreClassifier
 from datetime import datetime
 
 
@@ -28,16 +29,16 @@ def train_one_epoch(epoch_index, tb_writer):
     # index and do some intra-epoch reporting
     for i, data in enumerate(training_loader):
         # Every data instance is an input + label pair
-        inputs, labels = data
-
+        image, genres, _ = data
+        print(image.shape)
         # Zero your gradients for every batch!
         optimizer.zero_grad()
 
         # Make predictions for this batch
-        outputs = model(inputs)
+        outputs = model(image)
 
         # Compute the loss and its gradients
-        loss = loss_fn(outputs, labels)
+        loss = loss_fn(outputs, genres)
         loss.backward()
 
         # Adjust learning weights
@@ -53,6 +54,8 @@ def train_one_epoch(epoch_index, tb_writer):
             running_loss = 0.0
 
     return last_loss
+
+
 transform = transforms.Compose(
     [
         transforms.Grayscale(num_output_channels=1),
@@ -67,13 +70,25 @@ dataset = ArtDataset(
 )
 training_loader, validation_loader = get_data_loaders(dataset)
 
-for img, genre,artist in training_loader:
-    print(dataset.label_to_string(genre))
-    print(dataset.label_to_string(artist))
-    exit()
-model = GenreClassifier()
+# for img, genres, artist in training_loader:
+#     # print(img.shape)
+#     # print(
+#     #     "Tensor :", genres, " orignial genre :", dataset.encoded_label_to_string(genres)
+#     # )
+#     # print()
+#     # print(
+#     #     "Tensor :",
+#     #     artist,
+#     #     " orignial artist :",
+#     #     dataset.encoded_label_to_string(artist),
+#     # )
+#     pass
 
-loss_fn = torch.nn.CrossEntropyLoss()
+number_of_genres = len(dataset.genres_labels)
+print(number_of_genres)
+model = GenreClassifier(number_of_genres)
+
+loss_fn = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 # Initializing in a separate cell so we can easily add more epochs to the same run
