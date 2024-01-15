@@ -1,4 +1,3 @@
-import matplotlib as plt
 def matplotlib_imshow(img_batch):
     # Extract the first image from the batch
     img = img_batch[0]
