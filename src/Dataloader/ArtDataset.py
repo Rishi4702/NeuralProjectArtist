@@ -122,10 +122,10 @@ class GenreDataset(ArtDataset):
         super().__init__(csv_file, img_dir, transform)
 
         self.genre = genre
-        self.authors = []
+        self.artists_names = []
 
         self.set_authors()
-        self.delete_unnecessary_data()
+        self.prepare_data_for_single_genre()
 
     def __getitem__(self, idx):
         pass
@@ -138,10 +138,14 @@ class GenreDataset(ArtDataset):
                 genre = genre.strip()
 
                 if genre == self.genre:
-                    self.authors.append(row['name'])
+                    self.artists_names.append(row['name'])
 
-    def delete_unnecessary_data(self):
-        pass
+    def prepare_data_for_single_genre(self):
+        for i, row in enumerate(self.data.iterrows()):
+            name_of_artist = row[1]['name']
+
+            if name_of_artist not in self.artists_names:
+                self.data.drop(i, axis=0, inplace=True)
 
 dataset = GenreDataset(
     csv_file="../../Dataset/artists.csv",
@@ -149,6 +153,4 @@ dataset = GenreDataset(
     genre='Mannerism'
 )
 
-for data in dataset:
-    pass
-
+print(dataset.data)
