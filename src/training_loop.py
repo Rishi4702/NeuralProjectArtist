@@ -70,6 +70,7 @@ training_loader, validation_loader = get_data_loaders(dataset)
 for img, genre,artist in training_loader:
     print(dataset.label_to_string(genre))
     print(dataset.label_to_string(artist))
+    print(img.dtype)
     exit()
 model = GenreClassifier()
 

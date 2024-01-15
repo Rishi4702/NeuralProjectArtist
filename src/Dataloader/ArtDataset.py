@@ -59,7 +59,7 @@ class ArtDataset(Dataset):
         if artist_data is None:
             raise ValueError(f"No data found for artist: {artist_name}")
 
-        return image, genre_trans, artist_name_transform
+        return image.float(), genre_trans, artist_name_transform
 
     def fit_label_encoder(self):
         labels = []
