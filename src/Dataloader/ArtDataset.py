@@ -10,7 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 
 def convert_name(artist_name):
     if artist_name == "Albrecht Dürer":
-        return "Albrecht_Duâ Ãªrer"
+        return "Albrecht_Dürer"
     if artist_name == "Pierre-Auguste Renoir":
         return "Pierre-Auguste_Renoir"
     if artist_name == "Henri de Toulouse-Lautrec":
@@ -25,16 +25,22 @@ def convert_name(artist_name):
 
 
 class ArtDataset(Dataset):
-    def __init__(self, csv_file, img_dir, transform=None):
+    def __init__(self, csv_file: str, img_dir: str, transform=None):
         self.img_dir = img_dir
         self.transform = transform
 
         self.data = pd.read_csv(csv_file)
         self.label_encoder = LabelEncoder()
+
         self.artist_to_data = {}
         self.encoding_info = {}
+        self.genres_labels = []
+        self.artists_names = []
 
         self.convert_names()
+        self.set_artist_names()
+        self.set_genre_labels()
+
         self.fit_label_encoder()
 
     def __len__(self):
@@ -49,8 +55,8 @@ class ArtDataset(Dataset):
         image = Image.open(os.path.join(self.img_dir, img_name))
         artist_data = self.artist_to_data.get(artist_name)
 
-        genre = artist_data["genre"]
-        genre_trans = self.label_encoder.transform([genre])
+        genres = artist_data["genre"].split(",")
+        genre_trans = self.label_encoder.transform(genres)
         artist_name_transform = self.label_encoder.transform([artist_name])
 
         if self.transform:
@@ -61,25 +67,43 @@ class ArtDataset(Dataset):
 
         return image, genre_trans, artist_name_transform
 
+    def set_genre_labels(self):
+        artists_df = self.data
+        unique_genres = set()
+        for genres in artists_df["genre"]:
+            for genre in genres.split(","):
+                unique_genres.add(genre.strip())
+        self.genres_labels = sorted(list(unique_genres))
+
+    def set_artist_names(self):
+        artists_df = self.data
+        unique_artists = set(artists_df["name"])
+
+        for name in unique_artists:
+            concatenated_name = name.replace(" ", "_")
+            self.artists_names.append(concatenated_name)
+
     def fit_label_encoder(self):
-        labels = []
-        artists = []
-
-        for artist_name in self.artist_to_data:
-            genre = self.artist_to_data[artist_name]["genre"]
-
-            labels.append(genre)
-            artists.append(artist_name)
-
-        labels = list(set(labels))
-        artists = list(set(artists))
-
-        self.label_encoder.fit(labels + artists)
+        self.label_encoder.fit(self.genres_labels + self.artists_names)
 
     def convert_names(self):
         for _, row in self.data.iterrows():
             processed_name = convert_name(row["name"])
             self.artist_to_data[processed_name] = row
 
-    def label_to_string(self, encoded_label):
-        return self.label_encoder.inverse_transform([encoded_label])[0]
+    def encoded_label_to_string(self, encoded_label):
+        if len(encoded_label.shape) == 2:
+            # Nested list comprehension for 2D tensors
+            return [
+                [
+                    self.label_encoder.inverse_transform([label.item()])[0]
+                    for label in row
+                ]
+                for row in encoded_label
+            ]
+        else:
+            # Handling for 1D tensors
+            return [
+                self.label_encoder.inverse_transform([label.item()])[0]
+                for label in encoded_label
+            ]

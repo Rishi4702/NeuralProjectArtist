@@ -1,5 +1,4 @@
 from torch.utils.data import DataLoader
-from src.Dataloader.ArtDataset import ArtDataset
 from torchvision import transforms
 from torch.utils.data import random_split
 import warnings
@@ -9,7 +8,6 @@ warnings.warn("I am FutureWarning", FutureWarning)
 
 
 def get_data_loaders(dataset):
-
     train_size = int(0.8 * len(dataset))
     test_size = len(dataset) - train_size
 
@@ -19,4 +17,3 @@ def get_data_loaders(dataset):
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     return train_dataloader, test_dataloader
-
