@@ -2,6 +2,7 @@ import os
 import re
 
 import pandas as pd
+import torch
 import unidecode
 from PIL import Image
 from torch.utils.data import Dataset
@@ -30,10 +31,10 @@ class ArtDataset(Dataset):
         self.transform = transform
 
         self.data = pd.read_csv(csv_file)
-        self.label_encoder = LabelEncoder()
+        self.genre_label_encoder = LabelEncoder()
+        self.artist_label_encoder = LabelEncoder()
 
         self.artist_to_data = {}
-        self.encoding_info = {}
         self.genres_labels = []
         self.artists_names = []
 
@@ -41,7 +42,7 @@ class ArtDataset(Dataset):
         self.set_artist_names()
         self.set_genre_labels()
 
-        self.fit_label_encoder()
+        self.fit_label_encoders()
 
     def __len__(self):
         return len(os.listdir(self.img_dir))
@@ -51,22 +52,26 @@ class ArtDataset(Dataset):
         artist_name = os.path.splitext(img_name)[0]
         artist_name = "_".join(artist_name.split("_")[:-1])
 
-        # Remove trailing number and extension
         image = Image.open(os.path.join(self.img_dir, img_name))
         artist_data = self.artist_to_data.get(artist_name)
-
-        genres = artist_data["genre"].split(",")
-        genre_trans = self.label_encoder.transform(genres)
-        artist_name_transform = self.label_encoder.transform([artist_name])
-
-        if self.transform:
-            image = self.transform(image)
 
         if artist_data is None:
             raise ValueError(f"No data found for artist: {artist_name}")
 
-        return image.float(), genre_trans, artist_name_transform
+        genres = artist_data["genre"].split(",")
+        genre_encoded = self.genre_label_encoder.transform(genres)
 
+        # Create a binary tensor for genres
+        genre_tensor = torch.zeros(len(self.genres_labels), dtype=torch.float32)
+        for encoded_label in genre_encoded:
+            genre_tensor[encoded_label] = 1  # Set the corresponding index to 1
+
+        if self.transform:
+            image = self.transform(image)
+
+        artist_encoded = self.artist_label_encoder.transform([artist_name])[0]
+
+        return image, genre_tensor, artist_encoded
     def set_genre_labels(self):
         artists_df = self.data
         unique_genres = set()
@@ -83,8 +88,9 @@ class ArtDataset(Dataset):
             concatenated_name = name.replace(" ", "_")
             self.artists_names.append(concatenated_name)
 
-    def fit_label_encoder(self):
-        self.label_encoder.fit(self.genres_labels + self.artists_names)
+    def fit_label_encoders(self):
+        self.genre_label_encoder.fit(self.genres_labels)
+        self.artist_label_encoder.fit(self.artists_names)
 
     def convert_names(self):
         for _, row in self.data.iterrows():

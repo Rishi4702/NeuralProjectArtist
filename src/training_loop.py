@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from model import GenreClassifier
 from Dataloader.ArtDataset import ArtDataset
-
+from torch.utils.data import Subset
 # Image datasets and image manipulation
 import torchvision
 import torchvision.transforms as transforms
@@ -30,7 +30,6 @@ def train_one_epoch(epoch_index, tb_writer):
     for i, data in enumerate(training_loader):
         # Every data instance is an input + label pair
         image, genres, _ = data
-        print(image.shape)
         # Zero your gradients for every batch!
         optimizer.zero_grad()
 
@@ -64,38 +63,18 @@ transform = transforms.Compose(
     ]
 )
 dataset = ArtDataset(
-    csv_file="../Dataset/artists.csv",
-    img_dir="../Dataset/resized",
+    csv_file="../src/Dataset/artists.csv",
+    img_dir="../src/Dataset/resized",
     transform=transform,
 )
 training_loader, validation_loader = get_data_loaders(dataset)
-
-for img, genre,artist in training_loader:
-    print(dataset.label_to_string(genre))
-    print(dataset.label_to_string(artist))
-    print(img.dtype)
-    exit()
-model = GenreClassifier()
-
-# for img, genres, artist in training_loader:
-#     # print(img.shape)
-#     # print(
-#     #     "Tensor :", genres, " orignial genre :", dataset.encoded_label_to_string(genres)
-#     # )
-#     # print()
-#     # print(
-#     #     "Tensor :",
-#     #     artist,
-#     #     " orignial artist :",
-#     #     dataset.encoded_label_to_string(artist),
-#     # )
-#     pass
 
 
 number_of_genres = len(dataset.genres_labels)
 print(number_of_genres)
 model = GenreClassifier(number_of_genres)
-
+# for batch in validation_loader:
+#     print(len(batch))
 loss_fn = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
@@ -123,7 +102,7 @@ for epoch in range(EPOCHS):
     # Disable gradient computation and reduce memory consumption.
     with torch.no_grad():
         for i, vdata in enumerate(validation_loader):
-            vinputs, vlabels = vdata
+            vinputs, vlabels, _ = vdata
             voutputs = model(vinputs)
             vloss = loss_fn(voutputs, vlabels)
             running_vloss += vloss
