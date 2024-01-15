@@ -63,8 +63,8 @@ transform = transforms.Compose(
     ]
 )
 dataset = ArtDataset(
-    csv_file="../src/Dataset/artists.csv",
-    img_dir="../src/Dataset/resized",
+    csv_file="../Dataset/artists.csv",
+    img_dir="../Dataset/resized",
     transform=transform,
 )
 training_loader, validation_loader = get_data_loaders(dataset)
@@ -82,7 +82,6 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 writer = SummaryWriter("runs/fashion_trainer_{}".format(timestamp))
 epoch_number = 0
-
 EPOCHS = 5
 
 best_vloss = 1_000_000.0

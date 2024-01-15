@@ -113,3 +113,40 @@ class ArtDataset(Dataset):
                 self.label_encoder.inverse_transform([label.item()])[0]
                 for label in encoded_label
             ]
+
+
+class GenreDataset(ArtDataset):
+    def __init__(self, csv_file: str, img_dir: str, genre: str, transform=None):
+        super().__init__(csv_file, img_dir, transform)
+
+        self.genre = genre
+        self.authors = []
+
+        self.set_authors()
+        self.delete_unnecessary_data()
+
+    def __getitem__(self, idx):
+        pass
+
+    def set_authors(self):
+        for index, row in self.data.iterrows():
+            genres = row['genre'].split(',')
+
+            for genre in genres:
+                genre = genre.strip()
+
+                if genre == self.genre:
+                    self.authors.append(row['name'])
+
+    def delete_unnecessary_data(self):
+        pass
+
+dataset = GenreDataset(
+    csv_file="../../Dataset/artists.csv",
+    img_dir="../../Dataset/resized",
+    genre='Mannerism'
+)
+
+for data in dataset:
+    pass
+
