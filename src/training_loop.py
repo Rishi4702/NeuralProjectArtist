@@ -1,21 +1,15 @@
 # PyTorch model and training necessities
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from model import GenreClassifier
+from src.model.model import GenreClassifier
 from Dataloader.ArtDataset import ArtDataset
 
 # Image datasets and image manipulation
-import torchvision
 import torchvision.transforms as transforms
 
 # Image display
-import matplotlib.pyplot as plt
-import numpy as np
 
 from torch.utils.tensorboard import SummaryWriter
-from dataloader import get_data_loaders
+from src.Dataloader.dataloader import *
 from datetime import datetime
 
 
@@ -61,16 +55,23 @@ transform = transforms.Compose(
     ]
 )
 dataset = ArtDataset(
-    csv_file="../Dataset/artists.csv",
-    img_dir="../Dataset/resized",
+    csv_file="../src/Dataset/artists.csv",
+    img_dir="../src/Dataset/resized",
     transform=transform,
 )
 training_loader, validation_loader = get_data_loaders(dataset)
+for image, genre_labels, artist_label in training_loader:
+    print(f"  Image shape: {image.shape}")
+    print(f"  Genre labels: {genre_labels}")
+    print(f"  Artist label: {artist_label}")
+    print("----------")
+exit()
+# for img, genre,artist in training_loader:
+#     print(dataset.label_to_string(genre))
+#     print(dataset.label_to_string(artist))
 
-for img, genre,artist in training_loader:
-    print(dataset.label_to_string(genre))
-    print(dataset.label_to_string(artist))
-    exit()
+
+
 model = GenreClassifier()
 
 loss_fn = torch.nn.CrossEntropyLoss()
