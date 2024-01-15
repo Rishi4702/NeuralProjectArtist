@@ -72,9 +72,11 @@ class ArtDataset(Dataset):
         artist_encoded = self.artist_label_encoder.transform([artist_name])[0]
 
         return image, genre_tensor, artist_encoded
+
     def set_genre_labels(self):
         artists_df = self.data
         unique_genres = set()
+
         for genres in artists_df["genre"]:
             for genre in genres.split(","):
                 unique_genres.add(genre.strip())
