@@ -4,11 +4,11 @@ from collections import defaultdict
 
 import pandas as pd
 
-df = pd.read_csv("../dataset_files/artists.csv")
+df = pd.read_csv("../../dataset_files/artists.csv")
 names_dict = defaultdict(list)
 
-original_path = "../dataset_files/resized"
-path_to_copy = "../dataset_files/resized/genres"
+original_path = "../../dataset_files/resized"
+path_to_copy = "../../dataset_files/resized/genres"
 
 if __name__ == "__main__":
     try:

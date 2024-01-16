@@ -26,8 +26,8 @@ def convert_name(artist_name):
 
 
 class ArtDataset(Dataset):
-    def __init__(self, csv_file: str, img_dir: str, transform=None):
-        self.img_dir = img_dir
+    def __init__(self, csv_file: str, img_dir: str, data_type='training', transform=None):
+        self.img_dir = os.path.join(img_dir, data_type)
         self.transform = transform
 
         self.data = pd.read_csv(csv_file)
@@ -45,7 +45,7 @@ class ArtDataset(Dataset):
         self.fit_label_encoders()
 
     def __len__(self):
-        return len(os.listdir(self.img_dir))
+        return len(os.listdir(self.img_dir)) - 1
 
     def __getitem__(self, idx):
         img_name = os.listdir(self.img_dir)[idx]

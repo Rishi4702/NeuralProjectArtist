@@ -16,14 +16,15 @@ transform = transforms.Compose(
 )
 genres_folder_path = '../../dataset_files/resized/genres'
 genres = [genre for genre in os.listdir(genres_folder_path) if os.path.isdir(os.path.join(genres_folder_path, genre))]
+
 for genre in genres:
     genre_dataset = GenreDataset(
         csv_file="../../dataset_files/artists.csv",
         img_dir="../../dataset_files/resized",
         transform=transform,
         genre=genre,
+        data_type='training'
     )
-
 
     from torch.utils.data import random_split
 
