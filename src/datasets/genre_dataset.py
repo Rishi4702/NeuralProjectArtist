@@ -36,7 +36,7 @@ class GenreDataset(ArtDataset):
         return image, artist
 
     def __len__(self):
-        return len(os.listdir(self.genre_img_path)) - 1
+        return len(os.listdir(self.genre_img_path))
 
     def set_authors(self):
         for index, row in self.data.iterrows():

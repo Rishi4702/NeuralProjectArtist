@@ -45,7 +45,7 @@ class ArtDataset(Dataset):
         self.fit_label_encoders()
 
     def __len__(self):
-        return len(os.listdir(self.img_dir)) - 1
+        return len(os.listdir(self.img_dir))
 
     def __getitem__(self, idx):
         img_name = os.listdir(self.img_dir)[idx]
