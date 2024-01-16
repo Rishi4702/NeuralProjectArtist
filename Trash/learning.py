@@ -1,6 +1,8 @@
 import torch
-import numpy as np
-
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.models as models
+from src.models.artist_classifier import *
 # tensors
 # data = [[1,2],[3,4]]
 # x_data = torch.tensor(data)
@@ -24,13 +26,13 @@ import numpy as np
 # print(f"Ones Tensor: \n {ones_tensor} \n")
 # print(f"Zeros Tensor: \n {zeros_tensor}")
 
-tensor = torch.rand(9,9)
-# We move our tensor to the GPU if available
-if torch.cuda.is_available():
-  tensor = tensor.to('cuda')
-  print("hello")
-else:
-    print('nope')
+# tensor = torch.rand(9,9)
+# # We move our tensor to the GPU if available
+# if torch.cuda.is_available():
+#   tensor = tensor.to('cuda')
+#   print("hello")
+# else:
+#     print('nope')
 # # tensor = torch.ones(4, 4)
 # # # This computes the matrix multiplication between two tensors. y1, y2, y3 will have the same value
 # # y1 = tensor @ tensor.T
@@ -70,3 +72,5 @@ else:
 # z = torch.matmul(x, w)+b
 # loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
 
+model = ArtistClassifier(50)
+model.load_state_dict(torch.load('../runs/genreSpecific/abstract_expressionism_20240116_190940.pt'))
