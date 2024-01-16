@@ -1,7 +1,8 @@
 import os
 
+import numpy as np
 import torch
-from art_dataset import ArtDataset
+from src.datasets.art_dataset import ArtDataset
 from PIL import Image
 
 
@@ -52,3 +53,11 @@ class GenreDataset(ArtDataset):
 
             if name_of_artist not in self.artists_names:
                 self.data.drop(i, axis=0, inplace=True)
+
+    def decode_artist_label(self, encoded_label):
+        # Decodes a single label or a list/array of labels
+        if isinstance(encoded_label, (list, torch.Tensor, np.ndarray)):
+            return self.artist_label_encoder.inverse_transform(encoded_label)
+        else:
+            return self.artist_label_encoder.inverse_transform([encoded_label])[0]
+

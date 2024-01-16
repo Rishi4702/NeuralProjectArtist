@@ -8,12 +8,6 @@ from src.datasets.art_dataset import ArtDataset
 from src.models.genre_classifier import GenreClassifier
 from src.utils.dataloader import get_data_loaders
 
-# genre_dataset = GenreDataset(
-#     csv_file="../dataset_files/artists.csv",
-#     img_dir="../dataset_files/resized",
-#     transform=transform,
-#     genre='cubism',
-# )
 
 
 def train_one_epoch(epoch_index, tb_writer):
@@ -60,8 +54,8 @@ transform = transforms.Compose(
 )
 
 dataset = ArtDataset(
-    csv_file="../dataset_files/artists.csv",
-    img_dir="../dataset_files/resized",
+    csv_file="../../dataset_files/artists.csv",
+    img_dir="../../dataset_files/resized",
     transform=transform,
 )
 
