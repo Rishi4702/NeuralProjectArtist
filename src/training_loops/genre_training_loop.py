@@ -60,6 +60,7 @@ dataset = ArtDataset(
     csv_file="../../dataset_files/artists.csv",
     img_dir="../../dataset_files/resized",
     transform=transform,
+    data_type='training'
 )
 
 training_loader, validation_loader = get_data_loaders(dataset)

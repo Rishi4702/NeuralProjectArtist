@@ -7,18 +7,19 @@ from PIL import Image
 
 
 class GenreDataset(ArtDataset):
-    def __init__(self, csv_file: str, img_dir: str, genre: str, transform=None):
-        super().__init__(csv_file, img_dir, transform)
+    def __init__(self, csv_file: str, img_dir: str, genre: str, data_type='training', transform=None):
+        super().__init__(csv_file, img_dir, data_type, transform)
 
         self.genre = genre
         self.artists_names = []
-        self.genre_img_path = os.path.join(self.img_dir, "genres", self.genre)
+        self.genre_img_path = os.path.join(img_dir, "genres", self.genre, data_type)
 
         self.set_authors()
         self.prepare_csv_data_for_single_genre()
 
     def __getitem__(self, idx):
         img_name = os.listdir(self.genre_img_path)[idx]
+
         artist_name = os.path.splitext(img_name)[0]
         artist_name = "_".join(artist_name.split("_")[:-1])
 
