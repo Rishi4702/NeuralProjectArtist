@@ -2,15 +2,13 @@ from datetime import datetime
 
 import torch
 import torchvision.transforms as transforms
-from torch.utils.tensorboard import SummaryWriter
 
 from src.datasets.art_dataset import ArtDataset
 from src.models.genre_classifier import GenreClassifier
 from src.utils.dataloader import get_data_loaders
 
 
-
-def train_one_epoch(epoch_index, tb_writer):
+def train_one_epoch(epoch_index):
     running_loss = 0.0
     last_loss = 0.0
 
@@ -39,7 +37,7 @@ def train_one_epoch(epoch_index, tb_writer):
             last_loss = running_loss / 1000  # loss per batch
             print("  batch {} loss: {}".format(i + 1, last_loss))
             tb_x = epoch_index * len(training_loader) + i + 1
-            tb_writer.add_scalar("Loss/train", last_loss, tb_x)
+            # tb_writer.add_scalar("Loss/train", last_loss, tb_x)
             running_loss = 0.0
 
     return last_loss
@@ -49,7 +47,9 @@ transform = transforms.Compose(
     [
         transforms.Grayscale(num_output_channels=1),
         transforms.Resize(size=(256, 256)),
+        transforms.RandomRotation(degrees=(-10, 10)),
         transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
     ]
 )
 
@@ -57,10 +57,10 @@ dataset = ArtDataset(
     csv_file="../../dataset_files/artists.csv",
     img_dir="../../dataset_files/resized",
     transform=transform,
-    data_type='training'
+    data_type="training",
 )
 
-training_loader, validation_loader = get_data_loaders(dataset)
+training_loader, validation_loader = get_data_loaders(dataset, 0.8)
 number_of_genres = len(dataset.genres_labels)
 
 model = GenreClassifier(number_of_genres)
@@ -69,21 +69,21 @@ loss_fn = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 # Initializing in a separate cell so we can easily add more epochs to the same run
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-writer = SummaryWriter("../runs/genree_trainer_{}".format(timestamp))
 epoch_number = 0
-EPOCHS = 5
+EPOCHS = 10
 
 best_vloss = 1_000_000.0
+best_model_state = None
+
 
 for epoch in range(EPOCHS):
     print("EPOCH {}:".format(epoch_number + 1))
 
     # Make sure gradient tracking is on, and do a pass over the data
     model.train(True)
-    avg_loss = train_one_epoch(epoch_number, writer)
-
+    avg_loss = train_one_epoch(epoch_number)
     running_vloss = 0.0
+
     # Set the model to evaluation mode, disabling dropout and using population
     # statistics for batch normalization.
     model.eval()
@@ -99,21 +99,12 @@ for epoch in range(EPOCHS):
     avg_vloss = running_vloss / (i + 1)
     print("LOSS train {} valid {}".format(avg_loss, avg_vloss))
 
-    # Log the running loss averaged per batch
-    # for both training and validation
-    writer.add_scalars(
-        "Training vs. Validation Loss",
-        {"Training": avg_loss, "Validation": avg_vloss},
-        epoch_number + 1,
-    )
-    writer.flush()
-
     # Track best performance, and save the model's state
     if avg_vloss < best_vloss:
         best_vloss = avg_vloss
-        model_path = "../../runs/genre/models/model_{}_{}".format(
-            timestamp, epoch_number
-        )
-        torch.save(model.state_dict(), model_path)
+        best_model_state = model.state_dict().copy()
+
+        model_path = "../../runs/genre_models/genre_folder.pt"
+        torch.save(best_model_state, model_path)
 
     epoch_number += 1

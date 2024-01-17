@@ -6,8 +6,8 @@ warnings.warn("I am UserWarning", UserWarning)
 warnings.warn("I am FutureWarning", FutureWarning)
 
 
-def get_data_loaders(dataset):
-    train_size = int(0.8 * len(dataset))
+def get_data_loaders(dataset, train_size):
+    train_size = int(train_size * len(dataset))
     test_size = len(dataset) - train_size
 
     train_dataset, test_dataset = random_split(dataset, [train_size, test_size])

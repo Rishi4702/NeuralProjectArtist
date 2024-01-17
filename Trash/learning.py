@@ -73,4 +73,4 @@ from src.models.artist_classifier import *
 # loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
 
 model = ArtistClassifier(50)
-model.load_state_dict(torch.load('../runs/genreSpecific/abstract_expressionism_20240116_190940.pt'))
+model.load_state_dict(torch.load('../runs/genre_specific/abstract_expressionism_20240116_190940.pt'))
