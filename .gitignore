@@ -686,5 +686,5 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 dataset_files/
-
+Original_untouched_dataset/
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,visualstudio,python

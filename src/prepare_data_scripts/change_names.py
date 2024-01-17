@@ -4,7 +4,7 @@ img_path = "../../dataset_files/resized"
 
 if __name__ == "__main__":
     for file_name in os.listdir(img_path):
-        if file_name.startswith("Albrecht_Duâ Ãªrer"):
+        if file_name.startswith("Albrecht_DuGòá+¬rer"):
             # Extract the "_num" part of the file name
             num_part = file_name.split("_")[2]
 

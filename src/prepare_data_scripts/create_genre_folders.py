@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-df = pd.read_csv("../../dataset_files/artists.csv")
+df = pd.read_csv("../../dataset_files/csv/artists.csv")
 names_dict = defaultdict(list)
 
 original_path = "../../dataset_files/resized"

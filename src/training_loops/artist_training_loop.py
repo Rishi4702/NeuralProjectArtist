@@ -25,7 +25,7 @@ genres = [
 
 for genre in genres:
     genre_dataset = GenreDataset(
-        csv_file="../../dataset_files/artists.csv",
+        csv_file="../../dataset_files/csv/artists.csv",
         img_dir="../../dataset_files/resized",
         transform=transform,
         genre=genre,

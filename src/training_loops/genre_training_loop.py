@@ -57,7 +57,7 @@ transform = transforms.Compose(
 )
 
 dataset = ArtDataset(
-    csv_file="../../dataset_files/artists.csv",
+    csv_file="../../dataset_files/csv/artists.csv",
     img_dir="../../dataset_files/resized",
     transform=transform,
     data_type="training",
@@ -98,6 +98,23 @@ for epoch in range(EPOCHS):
             vinputs = vinputs.to(device)
             vlabels = vlabels.to(device)
             voutputs = model(vinputs)
+            voutputs = torch.sigmoid(voutputs)  # Convert logits to probabilities
+
+            # Find the index of the max probability for each image
+            predicted_indices = torch.argmax(voutputs, dim=1)
+            predicted_labels = dataset.decode_indices_to_genres(predicted_indices)
+
+            # You will need to implement the decode_indices_to_genres function
+            # to convert indices to genre strings based on your dataset's encoding.
+
+            original_labels = dataset.decode_label_to_string(vlabels)
+            print(f"Original labels: {original_labels}")
+            print(f"Predicted labels: {predicted_labels}")
+            if predicted_labels == original_labels:
+                # Print "yay" in green
+                print("\033[92mYay\033[0m")
+            else:
+                print("\033[91mNope\033[0m")
             vloss = loss_fn(voutputs, vlabels)
             running_vloss += vloss
 

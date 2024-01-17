@@ -104,6 +104,13 @@ class ArtDataset(Dataset):
     def fit_label_encoders(self):
         self.genre_label_encoder.fit(self.genres_labels)
         self.artist_label_encoder.fit(self.artists_names)
+        print("Genre Label Encodings:")
+        for label, encoding in zip(self.genres_labels, self.genre_label_encoder.classes_):
+            print(f"{label}: {encoding}")
+
+        print("\nArtist Label Encodings:")
+        for name, encoding in zip(self.artists_names, self.artist_label_encoder.classes_):
+            print(f"{name}: {encoding}")
 
     def convert_names(self):
         for _, row in self.data.iterrows():
@@ -111,25 +118,21 @@ class ArtDataset(Dataset):
             self.artist_to_data[processed_name] = row
 
     def decode_label_to_string(self, encoded_label):
-        # print(encoded_label)
-        # TODO
-        # take code from return
-        # there is no longer self.label_encoder
-        # need to change this toself.genre_label_encoder and self.artist_label_encoder
+
         if len(encoded_label.shape) == 2:
             # Nested list comprehension for 2D tensors
             return [
                 [
-                    self.genre_label_encoder.inverse_transform([label.item()])[0]
-                    for label in row
+                    self.genre_label_encoder.inverse_transform([int(label.item())])[0]
+                    for label in row if label == 1
                 ]
                 for row in encoded_label
             ]
         else:
             # Handling for 1D tensors
             return [
-                self.genre_label_encoder.inverse_transform([label.item()])[0]
-                for label in encoded_label
+                self.genre_label_encoder.inverse_transform([int(label.item())])[0]
+                for label in encoded_label if label == 1
             ]
 
     def convert_genre(self, genre):
@@ -137,3 +140,10 @@ class ArtDataset(Dataset):
         genre = genre.replace(" ", "_")
 
         return genre
+
+    def decode_indices_to_genres(self, indices):
+        """Convert genre indices to genre strings."""
+        genre_labels = []
+        for index in indices:
+            genre_labels.append(self.genres_labels[index])
+        return genre_labels
