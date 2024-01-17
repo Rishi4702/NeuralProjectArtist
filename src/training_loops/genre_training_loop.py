@@ -8,6 +8,7 @@ from src.datasets.art_dataset import ArtDataset
 from src.models.genre_classifier import GenreClassifier
 from src.utils.dataloader import get_data_loaders
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def train_one_epoch(epoch_index, tb_writer):
@@ -20,6 +21,8 @@ def train_one_epoch(epoch_index, tb_writer):
     for i, data in enumerate(training_loader):
         # Every data instance is an input + label pair
         image, genres, _ = data
+        image = image.to(device)
+        genres = genres.to(device)
         # Zero your gradients for every batch!
         optimizer.zero_grad()
 
@@ -62,7 +65,7 @@ dataset = ArtDataset(
 training_loader, validation_loader = get_data_loaders(dataset)
 number_of_genres = len(dataset.genres_labels)
 
-model = GenreClassifier(number_of_genres)
+model = GenreClassifier(number_of_genres).to(device)
 
 loss_fn = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -91,6 +94,8 @@ for epoch in range(EPOCHS):
     with torch.no_grad():
         for i, vdata in enumerate(validation_loader):
             vinputs, vlabels, _ = vdata
+            vinputs = vinputs.to(device)
+            vlabels = vlabels.to(device)
             voutputs = model(vinputs)
             vloss = loss_fn(voutputs, vlabels)
             running_vloss += vloss
