@@ -1,10 +1,10 @@
 import os
 
-img_path = "../../dataset_files/resized"
+img_path = '../../Original_untouched_dataset/resized/resized'
 
 if __name__ == "__main__":
     for file_name in os.listdir(img_path):
-        if file_name.startswith("Albrecht_DuGòá+¬rer"):
+        if file_name.startswith("Albrecht_DuÌrer"):
             # Extract the "_num" part of the file name
             num_part = file_name.split("_")[2]
 
