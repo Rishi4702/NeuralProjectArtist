@@ -26,7 +26,9 @@ def convert_name(artist_name):
 
 
 class ArtDataset(Dataset):
-    def __init__(self, csv_file: str, img_dir: str, data_type='training', transform=None):
+    def __init__(
+        self, csv_file: str, img_dir: str, data_type="training", transform=None
+    ):
         self.img_dir = os.path.join(img_dir, data_type)
         self.transform = transform
 
@@ -70,7 +72,8 @@ class ArtDataset(Dataset):
         # Create a binary tensor for genres
         genre_tensor = torch.zeros(len(self.genres_labels), dtype=torch.float32)
         for encoded_label in genre_encoded:
-            genre_tensor[encoded_label] = 1  # Set the corresponding index to 1
+            # Set the corresponding index to 1
+            genre_tensor[encoded_label] = 1
 
         if self.transform:
             image = self.transform(image)
@@ -108,6 +111,7 @@ class ArtDataset(Dataset):
             self.artist_to_data[processed_name] = row
 
     def decode_label_to_string(self, encoded_label):
+        # print(encoded_label)
         # TODO
         # take code from return
         # there is no longer self.label_encoder
@@ -116,7 +120,7 @@ class ArtDataset(Dataset):
             # Nested list comprehension for 2D tensors
             return [
                 [
-                    self.label_encoder.inverse_transform([label.item()])[0]
+                    self.genre_label_encoder.inverse_transform([label.item()])[0]
                     for label in row
                 ]
                 for row in encoded_label
@@ -124,7 +128,7 @@ class ArtDataset(Dataset):
         else:
             # Handling for 1D tensors
             return [
-                self.label_encoder.inverse_transform([label.item()])[0]
+                self.genre_label_encoder.inverse_transform([label.item()])[0]
                 for label in encoded_label
             ]
 

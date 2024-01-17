@@ -10,8 +10,11 @@ def split_single_folder_data(dataset_path):
     os.makedirs(test_data_path)
     os.makedirs(training_data_path)
 
-    files = [f for f in os.listdir(dataset_path) if
-             os.path.isfile(os.path.join(dataset_path, f))]
+    files = [
+        f
+        for f in os.listdir(dataset_path)
+        if os.path.isfile(os.path.join(dataset_path, f))
+    ]
 
     random.shuffle(files)
     test_dataset_size = int(0.3 * len(files))
@@ -39,11 +42,12 @@ if __name__ == "__main__":
     split_single_folder_data(whole_data_set_path)
 
     genres_datasets_path = os.path.join(whole_data_set_path, "genres")
-    genres_dirs = [f for f in os.listdir(genres_datasets_path) if
-                           os.path.isdir(os.path.join(genres_datasets_path, f)) and f != "test"]
+    genres_dirs = [
+        f
+        for f in os.listdir(genres_datasets_path)
+        if os.path.isdir(os.path.join(genres_datasets_path, f)) and f != "test"
+    ]
 
     for genres_dir in genres_dirs:
         genres_dir = os.path.join(genres_datasets_path, genres_dir)
         split_single_folder_data(genres_dir)
-
-

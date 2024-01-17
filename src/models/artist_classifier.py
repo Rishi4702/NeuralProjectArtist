@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class ArtistClassifier(nn.Module):
     def __init__(self, number_of_artists):
         super(ArtistClassifier, self).__init__()
@@ -9,7 +10,9 @@ class ArtistClassifier(nn.Module):
         self.conv1 = nn.Conv2d(1, 6, 5)
         self.conv2 = nn.Conv2d(6, 16, 3)
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(16 * 62 * 62, 120)  # Adjust based on your input image dimensions
+        self.fc1 = nn.Linear(
+            16 * 62 * 62, 120
+        )  # Adjust based on your input image dimensions
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, number_of_artists)
 
@@ -31,4 +34,3 @@ class ArtistClassifier(nn.Module):
         for s in size:
             num_features *= s
         return num_features
-

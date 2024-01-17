@@ -2,12 +2,20 @@ import os
 
 import numpy as np
 import torch
-from src.datasets.art_dataset import ArtDataset
 from PIL import Image
+
+from src.datasets.art_dataset import ArtDataset
 
 
 class GenreDataset(ArtDataset):
-    def __init__(self, csv_file: str, img_dir: str, genre: str, data_type='training', transform=None):
+    def __init__(
+        self,
+        csv_file: str,
+        img_dir: str,
+        genre: str,
+        data_type="training",
+        transform=None,
+    ):
         super().__init__(csv_file, img_dir, data_type, transform)
 
         self.genre = genre
@@ -61,4 +69,3 @@ class GenreDataset(ArtDataset):
             return self.artist_label_encoder.inverse_transform(encoded_label)
         else:
             return self.artist_label_encoder.inverse_transform([encoded_label])[0]
-

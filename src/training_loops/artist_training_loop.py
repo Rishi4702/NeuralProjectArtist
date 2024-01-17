@@ -1,11 +1,13 @@
 import os
 from datetime import datetime
 
-from src.models.artist_classifier import ArtistClassifier  # Import your artist classifier model
-from torch.utils.data import DataLoader
-from src.datasets.genre_dataset import GenreDataset
 import torch
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+
+from src.datasets.genre_dataset import GenreDataset
+from src.models.artist_classifier import ArtistClassifier
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 transform = transforms.Compose(
     [
@@ -14,8 +16,12 @@ transform = transforms.Compose(
         transforms.ToTensor(),
     ]
 )
-genres_folder_path = '../../dataset_files/resized/genres'
-genres = [genre for genre in os.listdir(genres_folder_path) if os.path.isdir(os.path.join(genres_folder_path, genre))]
+genres_folder_path = "../../dataset_files/resized/genres"
+genres = [
+    genre
+    for genre in os.listdir(genres_folder_path)
+    if os.path.isdir(os.path.join(genres_folder_path, genre))
+]
 
 for genre in genres:
     genre_dataset = GenreDataset(
@@ -23,7 +29,7 @@ for genre in genres:
         img_dir="../../dataset_files/resized",
         transform=transform,
         genre=genre,
-        data_type='training'
+        data_type="training",
     )
 
     from torch.utils.data import random_split
@@ -34,7 +40,9 @@ for genre in genres:
 
         train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        train_dataloader = DataLoader(
+            train_dataset, batch_size=batch_size, shuffle=True
+        )
         test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
         return train_dataloader, test_dataloader
@@ -47,8 +55,12 @@ for genre in genres:
     artist_model = ArtistClassifier(number_of_artists).to(device)
 
     # Define loss function and optimizer
-    artist_loss_fn = torch.nn.CrossEntropyLoss()  # Assuming you're using a single label per image for artists
-    artist_optimizer = torch.optim.SGD(artist_model.parameters(), lr=0.001, momentum=0.9)
+    artist_loss_fn = (
+        torch.nn.CrossEntropyLoss()
+    )  # Assuming you're using a single label per image for artists
+    artist_optimizer = torch.optim.SGD(
+        artist_model.parameters(), lr=0.001, momentum=0.9
+    )
 
     EPOCHS = 4
     # Training loop
@@ -61,7 +73,9 @@ for genre in genres:
 
         for i, data in enumerate(artist_training_loader):
             images, artist_labels = data
-            images, artist_labels = images.to(device), artist_labels.to(device)  # Move to the same device
+            images, artist_labels = images.to(device), artist_labels.to(
+                device
+            )  # Move to the same device
 
             artist_optimizer.zero_grad()
             artist_outputs = artist_model(images)
@@ -89,11 +103,17 @@ for genre in genres:
         print(f"Epoch {epoch + 1}, Validation Loss: {avg_validation_loss}")
         if avg_validation_loss < best_vloss:
             best_vloss = avg_validation_loss
-            best_model_state = artist_model.state_dict().copy()  # Store the best model state
-            print(f"Best model updated at epoch {epoch + 1} with validation loss: {avg_validation_loss}")
+            best_model_state = (
+                artist_model.state_dict().copy()
+            )  # Store the best model state
+            print(
+                f"Best model updated at epoch {epoch + 1} with validation loss: {avg_validation_loss}"
+            )
 
     if best_model_state is not None:
-        model_save_name = f"{genre_dataset.genre}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
-        model_path = f"../../runs/genreSpecific/{model_save_name}"
+        model_save_name = (
+            f"{genre_dataset.genre}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
+        )
+        model_path = f"../../runs/genre_specific/{model_save_name}"
         torch.save(best_model_state, model_path)
         print(f"Saved best model with validation loss: {best_vloss}")
