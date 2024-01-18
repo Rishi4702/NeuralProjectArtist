@@ -12,19 +12,16 @@ from src.datasets.art_dataset import ArtDataset
 from src.models.new_genre_classifier import *
 from src.utils.dataloader import *
 
-#
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_path = "../../runs/genre_models/genre_model1.pth"
 
-# ANSI escape codes for colors
 GREEN = "\033[92m"
 RED = "\033[91m"
 ENDC = "\033[0m"
 train_losses = []
 valid_losses = []
 accuracies = []
-# vgg_model = models.vgg16(pretrained=True)
-# Transformations
 
 train_transform = Compose(
     [
@@ -34,7 +31,7 @@ train_transform = Compose(
         RandomRotation(degrees=(-10, 10)),
         RandomHorizontalFlip(),
         ToTensor(),
-        Normalize((0.5,), (0.5,)),  # Grayscale mean and std
+        Normalize((0.5,), (0.5,)),
     ]
 )
 
@@ -44,7 +41,7 @@ valid_transform = Compose(
         CenterCrop(size=(256, 256)),
         Grayscale(num_output_channels=1),
         ToTensor(),
-        Normalize((0.5,), (0.5,)),  # Grayscale mean and std
+        Normalize((0.5,), (0.5,)),
     ]
 )
 
@@ -72,9 +69,8 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 model = model.to(device)
-# Mixed Precision Setup (Optional)
 scaler = GradScaler()
-# Training Loop
+
 EPOCHS = 7
 epoch_number = 0
 best_vloss = float("inf")
@@ -83,7 +79,6 @@ best_model_state = None
 for epoch in range(EPOCHS):
     print("EPOCH {}:".format(epoch + 1))
 
-    # Training phase
     model.train(True)
     total_loss = 0.0
     for i, data in enumerate(tqdm(training_loader, desc=f"Epoch {epoch + 1}/Training")):
@@ -101,7 +96,6 @@ for epoch in range(EPOCHS):
     avg_loss = total_loss / len(training_loader)
     print("Average training loss: {:.4f}".format(avg_loss))
 
-    # Validation phase
     model.eval()
     total_vloss = 0.0
     correct_predictions = 0

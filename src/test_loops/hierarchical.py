@@ -10,18 +10,18 @@ from src.utils.load_model_files import (get_artist_classifiers,
 
 
 def decode_highest_probability_genre(pred_genre, genre_label_encoder):
-    # Apply softmax to get probabilities
+
     probabilities = F.softmax(pred_genre, dim=1)
 
-    # Find the index of the highest probability
+
     highest_prob_index = torch.argmax(probabilities, dim=1)
 
-    # Ensure the result is a 1D array
+
     highest_prob_index_1d = highest_prob_index.cpu().numpy()
     if highest_prob_index_1d.ndim == 0:
         highest_prob_index_1d = np.array([highest_prob_index_1d])
 
-    # Decode the index to the genre name
+
     highest_prob_genre = genre_label_encoder.inverse_transform(highest_prob_index_1d)
 
     return highest_prob_genre[0]

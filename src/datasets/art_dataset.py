@@ -123,12 +123,3 @@ class ArtDataset(Dataset):
         for index in indices:
             genre_labels.append(self.genres_labels[index])
         return genre_labels
-
-
-# # Example usage:
-# dataset = ArtDataset(csv_file='../../dataset_files/csv/artists.csv', img_dir='../../dataset_files/resized')
-#
-# for i in range(len(dataset)):
-#     image, genre_encoded = dataset[i]
-#     genre_decoded = dataset.decode_label_to_string(genre_encoded)
-#     print(f"Encoded Label: {genre_encoded}, Decoded Label: {genre_decoded}")

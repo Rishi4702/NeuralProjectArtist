@@ -22,7 +22,7 @@ if __name__ == "__main__":
         name = name.replace(" ", "_")
 
         for genre in genres:
-            genre = genre.strip()  # Remove leading/trailing spaces
+            genre = genre.strip()
             names_dict[name].append(genre)
 
     img_list = os.listdir(original_path)

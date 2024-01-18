@@ -6,7 +6,6 @@ import torch.nn.functional as F
 class GenreClassifier(nn.Module):
     def __init__(self, n_classes):
         super(GenreClassifier, self).__init__()
-        # Convolutional layers for grayscale images
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
@@ -16,10 +15,8 @@ class GenreClassifier(nn.Module):
         self.conv4 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
         self.bn4 = nn.BatchNorm2d(256)
 
-        # Max pooling layer
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # Fully connected layers
         self.fc1 = nn.Linear(256 * 16 * 16, 512)
         self.dropout = nn.Dropout(0.5)
         self.fc2 = nn.Linear(512, n_classes)
@@ -30,10 +27,8 @@ class GenreClassifier(nn.Module):
         x = self.pool(F.relu(self.bn3(self.conv3(x))))
         x = self.pool(F.relu(self.bn4(self.conv4(x))))
 
-        # Flatten the output for the dense layers
         x = x.view(-1, 256 * 16 * 16)
 
-        # Dense layers with ReLU activation and dropout
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
         x = self.fc2(x)
@@ -41,7 +36,6 @@ class GenreClassifier(nn.Module):
 
 
 def modify_resnet_model(model, num_classes):
-    # Modify the first convolutional layer to accept 1 channel
     first_conv_layer = model.conv1
     model.conv1 = nn.Conv2d(
         1,

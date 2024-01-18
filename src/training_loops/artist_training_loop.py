@@ -47,24 +47,19 @@ for genre in genres:
 
         return train_dataloader, test_dataloader
 
-    # Create DataLoaders using the get_data_loaders function
     artist_training_loader, artist_validation_loader = get_data_loaders(genre_dataset)
-
-    # Initialize the artist classifier model
     number_of_artists = len(genre_dataset.artist_label_encoder.classes_)
     artist_model = ArtistClassifier(number_of_artists).to(device)
 
-    # Define loss function and optimizer
     artist_loss_fn = (
         torch.nn.CrossEntropyLoss()
-    )  # Assuming you're using a single label per image for artists
+    )
     artist_optimizer = torch.optim.SGD(
         artist_model.parameters(), lr=0.001, momentum=0.9
     )
 
     EPOCHS = 4
-    # Training loop
-    # Training loop
+
     best_vloss = 1_000_000.0
     best_model_state = None
     for epoch in range(EPOCHS):
@@ -75,21 +70,18 @@ for genre in genres:
             images, artist_labels = data
             images, artist_labels = images.to(device), artist_labels.to(
                 device
-            )  # Move to the same device
+            )
 
             artist_optimizer.zero_grad()
             artist_outputs = artist_model(images)
 
-            # Direct conversion in loss function call
             loss = artist_loss_fn(artist_outputs, artist_labels.type(torch.long))
             loss.backward()
             artist_optimizer.step()
 
             running_loss += loss.item()
-            # Additional print statements
             print(f"Batch: {i}, Device: {artist_labels.device}, Loss: {running_loss}")
 
-        # Validation step
         artist_model.eval()
         validation_loss = 0.0
         with torch.no_grad():
@@ -105,7 +97,7 @@ for genre in genres:
             best_vloss = avg_validation_loss
             best_model_state = (
                 artist_model.state_dict().copy()
-            )  # Store the best model state
+            )
             print(
                 f"Best model updated at epoch {epoch + 1} with validation loss: {avg_validation_loss}"
             )
