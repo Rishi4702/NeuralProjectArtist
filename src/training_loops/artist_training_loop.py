@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 import torch
 import torchvision.transforms as transforms
@@ -112,9 +111,7 @@ for genre in genres:
             )
 
     if best_model_state is not None:
-        model_save_name = (
-            f"{genre_dataset.genre}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
-        )
+        model_save_name = f"{genre_dataset.genre}.pt"
         model_path = f"../../runs/genre_specific/{model_save_name}"
         torch.save(best_model_state, model_path)
         print(f"Saved best model with validation loss: {best_vloss}")

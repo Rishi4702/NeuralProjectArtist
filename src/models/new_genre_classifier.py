@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class GenreClassifier(nn.Module):
     def __init__(self, n_classes):
         super(GenreClassifier, self).__init__()
@@ -38,20 +39,26 @@ class GenreClassifier(nn.Module):
         x = self.fc2(x)
         return x
 
+
 def modify_resnet_model(model, num_classes):
     # Modify the first convolutional layer to accept 1 channel
     first_conv_layer = model.conv1
-    model.conv1 = nn.Conv2d(1, first_conv_layer.out_channels,
-                            kernel_size=first_conv_layer.kernel_size,
-                            stride=first_conv_layer.stride,
-                            padding=first_conv_layer.padding,
-                            bias=False)
+    model.conv1 = nn.Conv2d(
+        1,
+        first_conv_layer.out_channels,
+        kernel_size=first_conv_layer.kernel_size,
+        stride=first_conv_layer.stride,
+        padding=first_conv_layer.padding,
+        bias=False,
+    )
 
     # Modify the fully connected layer to match the number of classes
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_classes)
 
     return model
+
+
 def modify_vgg_model(model, num_classes):
     # Modify the first convolutional layer to accept 1 channel
     features = list(model.features.children())

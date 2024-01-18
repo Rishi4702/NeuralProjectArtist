@@ -24,9 +24,7 @@ def decode_highest_probability_genre(pred_genre, genre_label_encoder):
     # Decode the index to the genre name
     highest_prob_genre = genre_label_encoder.inverse_transform(highest_prob_index_1d)
 
-    print(highest_prob_genre)
-    return highest_prob_genre
-
+    return highest_prob_genre[0]
 
 
 def get_top_prediction_with_probability(pred_artist):
@@ -61,36 +59,44 @@ dataset = ArtDataset(
 artist_models = get_artist_classifiers()
 genre_model = get_genre_classifier()
 
-validation_loader = DataLoader(dataset, batch_size=5)
+validation_loader = DataLoader(dataset, batch_size=1)
 
 
-correct_predictions = 0
+correct_artist_predictions = 0
+correct_genre_predictions = 0
 data_count = 0
 
 with torch.no_grad():
     for data in validation_loader:
         data_count += 1
-        image, genre_tensor, artist_encoded = data
-        print(dataset.decode_label_to_string(genre_tensor))
-        pred_genre = genre_model(image)
 
-        decoded_labels = decode_highest_probability_genre(
+        image, genre_tensor, artist = data
+        decoded_original_genre = dataset.decode_genre_label_to_string(
+            genre_tensor.item()
+        )
+        decoded_original_artist = dataset.decode_artist_label_to_string(artist.item())
+
+        pred_genre = genre_model(image)
+        decoded_predicted_genre = decode_highest_probability_genre(
             pred_genre, dataset.genre_label_encoder
         )
 
-        # final_prediction_probability = 0
-        # final_artist_prediction = ""
-        #
-        # # Predicting artist_names with specific aritst classifiers
-        # for label in decoded_labels[0]:
-        #     artist_classifier = artist_models[label]
-        #
-        #     predicted_artist = artist_classifier(image)
-        #     predicted_artist, probability = get_top_prediction_with_probability(
-        #         predicted_artist
-        #     )
-        #
-        #     if probability > final_prediction_probability:
-        #         final_prediction_probability = predicted_artist
-        #
-        # print(predicted_artist)
+        if decoded_original_genre == decoded_predicted_genre:
+            correct_genre_predictions += 1
+
+        artist_classifier = artist_models[decoded_predicted_genre]
+        predicted_artist = artist_classifier(image)
+        predicted_artist, _ = get_top_prediction_with_probability(predicted_artist)
+        decoded_predicted_artist = dataset.decode_artist_label_to_string(
+            predicted_artist
+        )
+
+        if decoded_predicted_artist == decoded_original_artist:
+            correct_artist_predictions += 1
+
+accuracy_of_correct_genre_predictions = correct_genre_predictions / data_count
+accuracy_of_hierarchical_model = correct_artist_predictions / data_count
+
+print(
+    f"accuracy hierarchical model :{accuracy_of_hierarchical_model} accuracy genre: {accuracy_of_correct_genre_predictions}"
+)
