@@ -21,7 +21,7 @@ ENDC = "\033[0m"
 train_losses = []
 valid_losses = []
 accuracies = []
-# vgg_model = models.vgg16(pretrained=True)
+# vgg_model = models.18(pretrained=True)
 # Transformations
 train_transform = Compose([
     Resize(size=(256, 256)),
@@ -58,7 +58,7 @@ model = modify_resnet_model(model, number_of_genres)
 # Loss function and Optimizer
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
-scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+scheduler = lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 model = model.to(device)
 # Mixed Precision Setup (Optional)
 scaler = GradScaler()
