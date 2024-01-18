@@ -8,7 +8,7 @@ df = pd.read_csv("../../dataset_files/csv/artists.csv")
 names_dict = defaultdict(list)
 
 original_path = "../../dataset_files/resized"
-path_to_copy = "../../dataset_files/resized/genres"
+path_to_copy = "../../dataset_files/genres"
 
 if __name__ == "__main__":
     try:

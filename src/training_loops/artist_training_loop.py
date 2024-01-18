@@ -16,12 +16,13 @@ transform = transforms.Compose(
         transforms.ToTensor(),
     ]
 )
-genres_folder_path = "../../dataset_files/resized/genres"
+genres_folder_path = "../../dataset_files/genres"
 genres = [
     genre
     for genre in os.listdir(genres_folder_path)
     if os.path.isdir(os.path.join(genres_folder_path, genre))
 ]
+print(genres)
 
 for genre in genres:
     genre_dataset = GenreDataset(

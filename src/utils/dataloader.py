@@ -1,9 +1,6 @@
 from torch.utils.data import DataLoader, random_split
 
-
-from torch.utils.data import DataLoader
-
-def get_data_loaders(train_dataset, valid_dataset, batch_size=500):
+def get_data_loaders(train_dataset, valid_dataset, batch_size=62):
     """
     Creates data loaders for the training and validation datasets.
 

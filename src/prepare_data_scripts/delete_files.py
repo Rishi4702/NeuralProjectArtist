@@ -1,6 +1,6 @@
 import os
 
-img_path = "../../dataset_files/resized"
+img_path = "../../Original_untouched_dataset/resized/resized"
 
 if __name__ == "__main__":
     for file_name in os.listdir(img_path):
