@@ -3,30 +3,30 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
+from src.models.artist_classifier import *
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize, RandomRotation, RandomHorizontalFlip, Grayscale
 
 from src.datasets.art_dataset import ArtDataset
 from src.utils.load_model_files import (get_artist_classifiers,
                                         get_genre_classifier)
-
+from src.utils.dataloader import *
 
 def decode_highest_probability_genre(pred_genre, genre_label_encoder):
-    # Apply softmax to get probabilities
+
     probabilities = F.softmax(pred_genre, dim=1)
 
-    # Find the index of the highest probability
+
     highest_prob_index = torch.argmax(probabilities, dim=1)
 
-    # Ensure the result is a 1D array
+
     highest_prob_index_1d = highest_prob_index.cpu().numpy()
     if highest_prob_index_1d.ndim == 0:
         highest_prob_index_1d = np.array([highest_prob_index_1d])
 
-    # Decode the index to the genre name
+
     highest_prob_genre = genre_label_encoder.inverse_transform(highest_prob_index_1d)
 
-    print(highest_prob_genre)
-    return highest_prob_genre
-
+    return highest_prob_genre[0]
 
 
 def get_top_prediction_with_probability(pred_artist):
@@ -43,12 +43,24 @@ def genres_tensor_to_label(genre_tensor):
     positions = torch.nonzero(genre_tensor == 1)
     print(positions)
 
+train_transform = Compose([
+    Resize(size=(256, 256)),
+    CenterCrop(size=(256, 256)),
+    Grayscale(num_output_channels=1),
+    RandomRotation(degrees=(-10, 10)),
+    RandomHorizontalFlip(),
+    ToTensor(),
+    Normalize((0.5,), (0.5,)),  # Grayscale mean and std
+])
+
 
 transform = transforms.Compose(
     [
-        transforms.Grayscale(num_output_channels=1),
-        transforms.Resize(size=(256, 256)),
-        transforms.ToTensor(),
+        Resize(size=(256, 256)),
+        CenterCrop(size=(256, 256)),
+        Grayscale(num_output_channels=1),
+        ToTensor(),
+        Normalize((0.5,), (0.5,)),  # Grayscale mean and std
     ]
 )
 
@@ -58,39 +70,50 @@ dataset = ArtDataset(
     transform=transform,
     data_type="training",
 )
+dataset.img_dir = r'C:\Users\golur\PycharmProjects\NeuralProjectArtist\dataset_files\resized'
+
+train_dataset, valid_dataset = split_dataset(dataset, train_size=0.9, train_transform=train_transform, valid_transform=transform)
+training_loader, validation_loader = get_data_loaders(train_dataset, valid_dataset, batch_size=1)
 artist_models = get_artist_classifiers()
 genre_model = get_genre_classifier()
 
-validation_loader = DataLoader(dataset, batch_size=5)
 
 
-correct_predictions = 0
+correct_artist_predictions = 0
+correct_genre_predictions = 0
 data_count = 0
 
 with torch.no_grad():
     for data in validation_loader:
         data_count += 1
-        image, genre_tensor, artist_encoded = data
-        print(dataset.decode_label_to_string(genre_tensor))
-        pred_genre = genre_model(image)
 
-        decoded_labels = decode_highest_probability_genre(
+        image, genre_tensor, artist = data
+        decoded_original_genre = dataset.decode_genre_label_to_string(
+            genre_tensor.item()
+        )
+        decoded_original_artist = dataset.decode_artist_label_to_string(artist.item())
+
+        pred_genre = genre_model(image)
+        decoded_predicted_genre = decode_highest_probability_genre(
             pred_genre, dataset.genre_label_encoder
         )
 
-        # final_prediction_probability = 0
-        # final_artist_prediction = ""
-        #
-        # # Predicting artist_names with specific aritst classifiers
-        # for label in decoded_labels[0]:
-        #     artist_classifier = artist_models[label]
-        #
-        #     predicted_artist = artist_classifier(image)
-        #     predicted_artist, probability = get_top_prediction_with_probability(
-        #         predicted_artist
-        #     )
-        #
-        #     if probability > final_prediction_probability:
-        #         final_prediction_probability = predicted_artist
-        #
-        # print(predicted_artist)
+        if decoded_original_genre == decoded_predicted_genre:
+            correct_genre_predictions += 1
+
+        artist_classifier = artist_models[decoded_predicted_genre]
+        predicted_artist = artist_classifier(image)
+        predicted_artist, _ = get_top_prediction_with_probability(predicted_artist)
+        decoded_predicted_artist = dataset.decode_artist_label_to_string(
+            predicted_artist
+        )
+
+        if decoded_predicted_artist == decoded_original_artist:
+            correct_artist_predictions += 1
+
+accuracy_of_correct_genre_predictions = correct_genre_predictions / data_count
+accuracy_of_hierarchical_model = correct_artist_predictions / data_count
+
+print(
+    f"accuracy hierarchical model :{accuracy_of_hierarchical_model} accuracy genre: {accuracy_of_correct_genre_predictions}"
+)

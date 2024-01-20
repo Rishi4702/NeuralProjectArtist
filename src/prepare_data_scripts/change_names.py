@@ -5,7 +5,6 @@ img_path = "../../Original_untouched_dataset/resized/resized"
 if __name__ == "__main__":
     for file_name in os.listdir(img_path):
         if file_name.startswith("Albrecht_DuGòá+¬rer"):
-            # Extract the "_num" part of the file name
             num_part = file_name.split("_")[2]
 
             # Create the new file name with "Albrecht_Dürer" and the "_num" part

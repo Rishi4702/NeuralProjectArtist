@@ -6,7 +6,7 @@ from tqdm import tqdm
 import torchvision.models as models
 import torch
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize, RandomRotation, RandomHorizontalFlip, Grayscale
-from src.datasets.new_art_dataset import ArtDataset
+from src.datasets.art_dataset import ArtDataset
 from src.utils.dataloader import *
 from src.models.new_genre_classifier import *
 from torch.cuda.amp import GradScaler
@@ -44,7 +44,9 @@ valid_transform = Compose([
 # Dataset and Data Loaders
 dataset = ArtDataset(csv_file=r'C:\Users\golur\PycharmProjects\NeuralProjectArtist\dataset_files\csv\artists.csv',
                      img_dir=r'C:\Users\golur\PycharmProjects\NeuralProjectArtist\dataset_files\resized')
-train_dataset, valid_dataset = split_dataset(dataset, train_size=0.8, train_transform=train_transform, valid_transform=valid_transform)
+dataset.img_dir = r'C:\Users\golur\PycharmProjects\NeuralProjectArtist\dataset_files\resized'
+
+train_dataset, valid_dataset = split_dataset(dataset, train_size=0.9, train_transform=train_transform, valid_transform=valid_transform)
 training_loader, validation_loader = get_data_loaders(train_dataset, valid_dataset, batch_size=64)
 number_of_genres = dataset.num_gen()
 
@@ -57,13 +59,13 @@ model = modify_resnet_model(model, number_of_genres)
 
 # Loss function and Optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
 scheduler = lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 model = model.to(device)
 # Mixed Precision Setup (Optional)
 scaler = GradScaler()
 # Training Loop
-EPOCHS = 7
+EPOCHS = 15
 epoch_number = 0
 best_vloss = float('inf')
 best_model_state = None
@@ -75,7 +77,7 @@ for epoch in range(EPOCHS):
     model.train(True)
     total_loss = 0.0
     for i, data in enumerate(tqdm(training_loader, desc=f"Epoch {epoch + 1}/Training")):
-        images, genres = data
+        images, genres,_ = data
         images = images.to(device)
         genres = genres.to(device).long()
 
@@ -96,7 +98,7 @@ for epoch in range(EPOCHS):
     total_predictions = 0
     with torch.no_grad():
         for vdata in tqdm(validation_loader, desc=f"Epoch {epoch + 1}/Validation"):
-            vimages, vgenres = vdata
+            vimages, vgenres,_ = vdata
             vimages = vimages.to(device)
             vgenres = vgenres.to(device).long()
 
